@@ -75,9 +75,9 @@ export const parsePath = handle({
     }
 
     if (
-      isUndefined(state.pathname) &&
-      isUndefined(state.search) &&
-      isUndefined(state.hash)
+      !isUndefined(state.pathname) &&
+      !isUndefined(state.search) &&
+      !isUndefined(state.hash)
     ) {
       return next(null, {
         ...state,
