@@ -82,7 +82,7 @@ export const parsePath = handle({
 
     return next(new Error(
       'State object must have either `path` or `pathname`, `search`, ' +
-      'and `query`'
+      'and `hash`'
     ))
   }
 })
