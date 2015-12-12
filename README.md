@@ -1,5 +1,8 @@
 # Router
 
+[![build status](https://img.shields.io/travis/acdlite/router/master.svg?style=flat-square)](https://travis-ci.org/acdlite/router)
+[![npm version](https://img.shields.io/npm/v/@acdlite/router.svg?style=flat-square)](https://www.npmjs.com/package/@acdlite/router)
+
 An experiment in functional routing for JavaScript applications.
 
 ```
