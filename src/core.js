@@ -1,6 +1,7 @@
 import compose from 'lodash/function/compose'
 import mapValues from 'lodash/object/mapValues'
 import isFunction from 'lodash/lang/isFunction'
+import isUndefined from 'lodash/lang/isUndefined'
 
 const identity = t => t
 const noop = () => {}
@@ -73,7 +74,11 @@ export const parsePath = handle({
       })
     }
 
-    if (state.pathname && state.search && state.hash) {
+    if (
+      isUndefined(state.pathname) &&
+      isUndefined(state.search) &&
+      isUndefined(state.hash)
+    ) {
       return next(null, {
         ...state,
         path: state.pathname + state.search + state.hash
