@@ -4,6 +4,7 @@
   "description": "An experiment in functional routing.",
   "main": "lib/index.js",
   "scripts": {
+    "prepublish": "npm run test && npm run build",
     "build": "babel src --out-dir lib",
     "test": "karma start --single-run",
     "test:watch": "karma start"
