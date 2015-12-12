@@ -14,7 +14,7 @@ Key features:
 - A router is a function that turns a path into a state object. That's it. This allows for total separation of history management from route matching.
 - Because history management is separate, the server-side API is identical to the client-side API.
 
-**See below for a proof-of-concept that mimics the React Router API.**
+**[See below for a proof-of-concept that mimics the React Router API.](https://github.com/acdlite/router#proof-of-concept-react-router-like-api)**
 
 ## Should I use this?
 
