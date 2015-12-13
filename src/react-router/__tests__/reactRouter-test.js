@@ -1,4 +1,6 @@
 import { expect } from 'chai'
+import React from 'react'
+import { Route } from 'react-router'
 import createMemoryHistory from 'history/lib/createMemoryHistory'
 import useQueries from 'history/lib/useQueries'
 import { createRouter, ensureMostRecent } from '@acdlite/router'
@@ -56,5 +58,29 @@ describe('Mimic React Router API', () => {
 
     history.push('/post')
     expect(state.components).to.eql([App, PostIndex])
+  })
+
+  it('attaches router object to components', done => {
+    const A = () => {}
+    const B = () => {}
+    const C = () => {}
+
+    const router = createRouter(
+      nestedRoute(
+        <Route path="/" id={1} component={A}>
+          <Route path="post" id={2} component={B}>
+            <Route path=":id" id={3} component={C} />
+          </Route>
+        </Route>
+      ),
+      getComponents
+    )
+
+    router('/post/123', {
+      done: (error, state) => {
+        expect(state.components.map(c => c.route.id)).to.eql([1, 2, 3])
+        done()
+      }
+    })
   })
 })

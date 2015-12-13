@@ -22,6 +22,7 @@ const getComponents = handle({
     let didCallNext = false
 
     const receiveComponent = (component, index) => {
+      component.route = routes[index]
       result[index] = component
       if (--remaining === 0) {
         next(null, {
