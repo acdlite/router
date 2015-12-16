@@ -110,23 +110,28 @@ As a proof-of-concept, the `react-router/` directory includes utilities for impl
 - Plain object routes or JSX routes
 - Asynchronous route fetching, using `config.getChildRoutes()`
 - Asynchronous component fetching, using `config.getComponent()`
-- Index routes
+- `<Redirect>`
+- `<IndexRoute>`
 
-Not yet completed:
+Diverges from React Router:
 
-- `<Redirect>` routes
+- `onEnter()` hooks are just middlewares that run when a route matches.
+- `onLeave()` hooks are not supported because they require keeping track of the previous state, which is (currently) outside the scope of this project.
 
 Internally, it uses several of React Router's methods, so the route matching behavior should be identical.
+
+Note that if you were really aiming to replace React Router, you would want to create a stateful abstraction on top of these relatively low-level functions. I have intentionally omitted any kind of state management from this project, for maximum flexibility while I continue to experiment.
 
 Example:
 
 ```js
 import { createRouter } from '@acdlite/router'
-import { nestedRoute, getComponents, Route, IndexRoute } from '@acdlite/router/react-router'
+import { reactRoutes } from '@acdlite/router/react-router'
+import { Route, IndexRoute } from 'react-router'
 import createHistory from 'history/lib/createBrowserHistory'
 
 const reactRouter = createRouter(
-  nestedRoute(
+  reactRoutes(
     <Route path="/" component={App}>
       <Route path="post">
         <IndexRoute component={PostIndex} />
@@ -134,7 +139,6 @@ const reactRouter = createRouter(
       </Route>
     </Route>
   ),
-  getComponents,
   // ... add additional middleware, if desired
 )
 
@@ -183,4 +187,4 @@ const Component = nest(...state.components)
 ReactDOM.render(<Component {...state.params} {...state.query} />)
 ```
 
-That gets you 90% of the way to parity with React Router. Conveniences like the `<Link>` component and transition hooks would need to be re-implemented, but are fairly straightforward.
+That gets you 90% of the way to parity with React Router. Conveniences like the `<Link>` component would need to be re-implemented, but are fairly straightforward.

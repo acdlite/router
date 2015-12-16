@@ -1,8 +1,7 @@
 import React from 'react'
-import { Route, IndexRoute } from 'react-router'
 import { expect } from 'chai'
 import { createRouter } from '@acdlite/router'
-import { nestedRoute } from '@acdlite/router/react-router'
+import { nestedRoute, Route, IndexRoute } from '@acdlite/router/react-router'
 
 describe('nestedRoute()', () => {
   it('matches routes like React Router', done => {

@@ -101,8 +101,12 @@ export const createRouter = (...middlewares) => (path, listeners = noop) => {
   )(noop)(null, initialState)
 }
 
+const redirectMiddleware = path =>
+  next => (error, state) => next(null, { ...state, redirect: path })
+
 export const redirect = path => handle({
-  next: next => (error, state) => next(null, { ...state, redirect: path })
+  done: redirectMiddleware(path),
+  next: redirectMiddleware(path)
 })
 
 export const done = handle({

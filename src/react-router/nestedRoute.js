@@ -2,7 +2,7 @@ import compose from 'lodash/function/compose'
 import flatten from 'lodash/array/flatten'
 import * as PatternUtils from 'react-router/lib/PatternUtils'
 import { createRoutes } from 'react-router/lib/RouteUtils'
-import { handle, done } from '../core'
+import { handle, done, redirect } from '../core'
 
 /**
  * Build a params object given arrays of names and values.
@@ -44,7 +44,22 @@ const runChildRoutes = config => handle({
   }
 })
 
-const exitBranch = handle({
+const getRoutePattern = (routes, routeIndex) => {
+  let parentPattern = ''
+
+  for (let i = routeIndex; i >= 0; i--) {
+    const route = routes[i]
+    const pattern = route.path || ''
+
+    parentPattern = pattern.replace(/\/*$/, '/') + parentPattern
+
+    if (pattern.indexOf('/') === 0) break
+  }
+
+  return '/' + parentPattern
+}
+
+const exitBranch = config => handle({
   next: next => (error, state) => {
     const { stack, didFullyMatch, ...rest } = state
 
@@ -61,15 +76,33 @@ const exitBranch = handle({
       return next(error, newState)
     }
 
+    const routes = stack.map(s => s.route)
+    const params = buildParams(
+      flatten(stack.map(s => s.paramNames)),
+      flatten(stack.map(s => s.paramValues))
+    )
+
+    if (config.redirect) {
+      const redirectTo = config.redirect
+      let pathname
+      if (redirectTo.charAt(0) === '/') {
+        pathname = PatternUtils.formatPattern(redirectTo, params)
+      } else if (!redirectTo) {
+        pathname = state.pathname
+      } else {
+        const routeIndex = routes.indexOf(config)
+        const parentPattern = getRoutePattern(routes, routeIndex - 1)
+        const pattern = parentPattern.replace(/\/*$/, '/') + redirectTo
+        pathname = PatternUtils.formatPattern(pattern, params)
+      }
+
+      return redirect(pathname)(next)(error, state)
+    }
+
     const newState = {
       ...rest,
-      // Add matched routes to state
-      routes: stack.map(s => s.route),
-      // Add params to state
-      params: buildParams(
-        flatten(stack.map(s => s.paramNames)),
-        flatten(stack.map(s => s.paramValues))
-      )
+      routes,
+      params
     }
 
     // Mark state as done and continue
@@ -137,7 +170,7 @@ const nestedRoute = (..._configs) => {
       const middlewares = [runChildRoutes(config)]
 
       // Clean up state before exiting route branch
-      middlewares.push(exitBranch)
+      middlewares.push(exitBranch(config))
 
       return compose(...middlewares)(next)(null, newState)
     }

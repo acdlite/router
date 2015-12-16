@@ -1,10 +1,9 @@
 import { expect } from 'chai'
 import React from 'react'
-import { Route } from 'react-router'
 import createMemoryHistory from 'history/lib/createMemoryHistory'
 import useQueries from 'history/lib/useQueries'
-import { createRouter, ensureMostRecent } from '@acdlite/router'
-import { nestedRoute, getComponents } from '@acdlite/router/react-router'
+import { createRouter, redirect } from '@acdlite/router'
+import { reactRoutes, Route, Redirect } from '@acdlite/router/react-router'
 
 const createHistory = useQueries(createMemoryHistory)
 
@@ -36,10 +35,7 @@ describe('Mimic React Router API', () => {
 
     const router =
       createRouter(
-        ensureMostRecent(
-          nestedRoute(routeConfig),
-          getComponents
-        )
+        reactRoutes(routeConfig)
       )
 
     let state
@@ -66,19 +62,57 @@ describe('Mimic React Router API', () => {
     const C = () => {}
 
     const router = createRouter(
-      nestedRoute(
+      reactRoutes(
         <Route path="/" id={1} component={A}>
           <Route path="post" id={2} component={B}>
             <Route path=":id" id={3} component={C} />
           </Route>
         </Route>
-      ),
-      getComponents
+      )
     )
 
     router('/post/123', {
       done: (error, state) => {
         expect(state.components.map(c => c.route.id)).to.eql([1, 2, 3])
+        done()
+      }
+    })
+  })
+
+  it('runs enter hooks', done => {
+    const onEnter = redirect('/new/path')
+    const router = createRouter(
+      reactRoutes(
+        <Route path="/" id={1}>
+          <Route path="post" id={2} onEnter={onEnter}>
+            <Route path=":id" id={3} />
+          </Route>
+        </Route>
+      )
+    )
+
+    router('/post/123', {
+      redirect: (error, state) => {
+        expect(state.redirect).to.equal('/new/path')
+        done()
+      }
+    })
+  })
+
+  it('works with redirects', done => {
+    const router = createRouter(
+      reactRoutes(
+        <Route path="/" id={1}>
+          <Route path="post" id={2}>
+            <Redirect from=":id" to="foo/:id/bar" id={3} />
+          </Route>
+        </Route>
+      )
+    )
+
+    router('/post/123', {
+      redirect: (error, state) => {
+        expect(state.redirect).to.equal('/post/foo/123/bar')
         done()
       }
     })
