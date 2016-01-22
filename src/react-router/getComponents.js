@@ -21,7 +21,21 @@ const getComponents = handle({
     // multiple `route.getComponent()` calls result in errors
     let didCallNext = false
 
+    const receiveError = err => {
+      if (didCallNext) return
+
+      didCallNext = true
+      next(err)
+    }
+
     const receiveComponent = (component, index) => {
+      if (!component) {
+        return receiveError(new Error(
+          `Route ${routes[index].name} returned a component that is null or ` +
+          'undefined.')
+        )
+      }
+
       component.route = routes[index]
       result[index] = component
       if (--remaining === 0) {
@@ -31,13 +45,6 @@ const getComponents = handle({
           components: result.filter(c => c !== SKIP)
         })
       }
-    }
-
-    const receiveError = err => {
-      if (didCallNext) return
-
-      didCallNext = true
-      next(err)
     }
 
     routes.forEach((route, i) => {

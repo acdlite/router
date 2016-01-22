@@ -29,7 +29,7 @@ const runChildRoutes = config => handle({
   next: next => (error, state) => {
     if (config.childRoutes) {
       /* eslint-disable */
-      return compose(...config.childRoutes.map(nestedRoute))(next)(null, state)
+      return nestedRoute(...config.childRoutes)(next)(null, state)
       /* eslint-enable */
     } else if (config.getChildRoutes) {
       config.getChildRoutes(state, (e, childRoutes) => {
